@@ -177,72 +177,25 @@ public class Items
     {
         var name = level.name;
 
-        //var alwaysValid = scrapItem.spawnLevels.HasFlag(Levels.LevelTypes.All) || (scrapItem.spawnLevelOverrides != null && scrapItem.spawnLevelOverrides.Any(item => item.ToLowerInvariant() == name.ToLowerInvariant()));
+        if (!Levels.TryGetRarityForLevel(name, scrapItem.levelRarities, scrapItem.customLevelRarities, out int rarity))
+            return;
 
-        var alwaysValid = scrapItem.levelRarities.ContainsKey(Levels.LevelTypes.All)
-            || scrapItem.levelRarities.ContainsKey(Levels.LevelTypes.Vanilla)
-            || (scrapItem.customLevelRarities != null && scrapItem.customLevelRarities.ContainsKey(name));
-        var isModded = scrapItem.levelRarities.ContainsKey(Levels.LevelTypes.Modded) && !Enum.IsDefined(typeof(Levels.LevelTypes), name);
-
-        if (isModded)
+        var spawnableÍtemWithRarity = new SpawnableItemWithRarity()
         {
-            alwaysValid = true;
-        }
+            spawnableItem = scrapItem.item,
+            rarity = rarity
+        };
 
-        var realLevelEnum = Levels.LevelTypes.None;
-        bool isVanilla = false;
-        
-        if(Enum.IsDefined(typeof(Levels.LevelTypes), name)){
-            realLevelEnum = (Levels.LevelTypes)Enum.Parse(typeof(Levels.LevelTypes), name);
-            isVanilla = true;
-        }
-        else
-            name = Levels.Compatibility.GetLLLNameOfLevel(name);
+        // make sure spawnableScrap does not already contain item
+        //Plugin.logger.LogInfo($"Checking if {scrapItem.item.name} is already in {name}");
 
-        if (isVanilla || alwaysValid)
+        if (!level.spawnableScrap.Any(x => x.spawnableItem == scrapItem.item))
         {
-            var levelEnum = alwaysValid ? Levels.LevelTypes.All : (Levels.LevelTypes)Enum.Parse(typeof(Levels.LevelTypes), name);
+            level.spawnableScrap.Add(spawnableÍtemWithRarity);
 
-            // old: scrapItem.spawnLevels.HasFlag(levelEnum)
-            if (alwaysValid || scrapItem.levelRarities.ContainsKey(levelEnum))
-            {
-                // find rarity
-                int rarity = 0;
+            if(Plugin.extendedLogging.Value)
+                Plugin.logger.LogInfo($"To {name} added {scrapItem.item.name}");
 
-                if (isVanilla && scrapItem.levelRarities.ContainsKey(realLevelEnum))
-                    rarity = scrapItem.levelRarities[realLevelEnum];
-
-                else if (isVanilla && scrapItem.levelRarities.ContainsKey(Levels.LevelTypes.Vanilla))
-                    rarity = scrapItem.levelRarities[Levels.LevelTypes.Vanilla];
-                
-                else if (!isVanilla && scrapItem.customLevelRarities != null && scrapItem.customLevelRarities.ContainsKey(name))
-                    rarity = scrapItem.customLevelRarities[name];
-
-                else if (!isVanilla && scrapItem.levelRarities.ContainsKey(Levels.LevelTypes.Modded))
-                    rarity = scrapItem.levelRarities[Levels.LevelTypes.Modded];
-                
-                else if (scrapItem.levelRarities.ContainsKey(Levels.LevelTypes.All))
-                    rarity = scrapItem.levelRarities[Levels.LevelTypes.All];
-
-
-                var spawnableÍtemWithRarity = new SpawnableItemWithRarity()
-                {
-                    spawnableItem = scrapItem.item,
-                    rarity = rarity
-                };
-
-                // make sure spawnableScrap does not already contain item
-                //Plugin.logger.LogInfo($"Checking if {scrapItem.item.name} is already in {name}");
-
-                if (!level.spawnableScrap.Any(x => x.spawnableItem == scrapItem.item))
-                {
-                    level.spawnableScrap.Add(spawnableÍtemWithRarity);
-
-                    if(Plugin.extendedLogging.Value)
-                        Plugin.logger.LogInfo($"To {name} added {scrapItem.item.name}");
-
-                }
-            }
         }
     }
 
