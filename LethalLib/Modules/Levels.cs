@@ -101,4 +101,34 @@ public class Levels
             return LLLifiedCustomLevelRarities;
         }
     }
+
+    internal static bool TryGetRarityForLevel(string levelName, Dictionary<LevelTypes, int> vanillaDict, Dictionary<string, int>? moddedDict, out int rarity)
+    {
+        rarity = 0;
+        bool isVanilla = false;
+        if (Enum.TryParse<LevelTypes>(levelName, out var levelEnum))
+            isVanilla = true;
+        else
+            levelName = Compatibility.GetLLLNameOfLevel(levelName);
+
+        if (isVanilla && vanillaDict.ContainsKey(levelEnum))
+            rarity = vanillaDict[levelEnum];
+
+        else if (isVanilla && vanillaDict.ContainsKey(LevelTypes.Vanilla))
+            rarity = vanillaDict[LevelTypes.Vanilla];
+
+        else if (!isVanilla && moddedDict != null && moddedDict.ContainsKey(levelName))
+            rarity = moddedDict[levelName];
+
+        else if (!isVanilla && vanillaDict.ContainsKey(LevelTypes.Modded))
+            rarity = vanillaDict[LevelTypes.Modded];
+
+        else if (vanillaDict.ContainsKey(LevelTypes.All))
+            rarity = vanillaDict[LevelTypes.All];
+
+        else
+            return false;
+
+        return true;
+    }
 }

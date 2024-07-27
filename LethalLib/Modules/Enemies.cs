@@ -194,102 +194,53 @@ public class Enemies
     {
         var name = level.name;
 
-        //var alwaysValid = spawnableEnemy.spawnLevels.HasFlag(Levels.LevelTypes.All) || (spawnableEnemy.spawnLevelOverrides != null && spawnableEnemy.spawnLevelOverrides.Any(item => item.ToLowerInvariant() == name.ToLowerInvariant()));
-        //var isModded = spawnableEnemy.spawnLevels.HasFlag(Levels.LevelTypes.Modded) && !Enum.IsDefined(typeof(Levels.LevelTypes), name);
-        var alwaysValid = spawnableEnemy.levelRarities.ContainsKey(Levels.LevelTypes.All)
-            || spawnableEnemy.levelRarities.ContainsKey(Levels.LevelTypes.Vanilla)
-            || (spawnableEnemy.customLevelRarities != null && spawnableEnemy.customLevelRarities.ContainsKey(name));
-        var isModded = spawnableEnemy.levelRarities.ContainsKey(Levels.LevelTypes.Modded) && !Enum.IsDefined(typeof(Levels.LevelTypes), name);
-
-
-        if (isModded)
+        if (!Levels.TryGetRarityForLevel(name, spawnableEnemy.levelRarities, spawnableEnemy.customLevelRarities, out int rarity))
+            return;
+        
+        var spawnableEnemyWithRarity = new SpawnableEnemyWithRarity()
         {
-            alwaysValid = true;
-        }
+            enemyType = spawnableEnemy.enemy,
+            rarity = rarity
+        };
 
-        var realLevelEnum = Levels.LevelTypes.None;
-        bool isVanilla = false;
+        // make sure spawnableScrap does not already contain item
+        //Plugin.logger.LogInfo($"Checking if {spawnableEnemy.enemy.name} is already in {name}");
 
-        if(Enum.IsDefined(typeof(Levels.LevelTypes), name)){
-            realLevelEnum = (Levels.LevelTypes)Enum.Parse(typeof(Levels.LevelTypes), name);
-            isVanilla = true;
-        }
-        else
-            name = Levels.Compatibility.GetLLLNameOfLevel(name);
-
-        if (isVanilla || alwaysValid)
+        /*
+        if (!level.spawnableEnemies.Any(x => x.spawnableEnemy == spawnableEnemy.enemy))
         {
+            level.spawnableEnemies.Add(spawnableEnemyWithRarity);
+            Logger.LogInfo($"Added {spawnableEnemy.enemy.name} to {name}");
+        }*/
 
-            // if modded, alwaysValid is true anyways
-            var levelEnum = alwaysValid ? Levels.LevelTypes.All : realLevelEnum;
-
-            if (alwaysValid || spawnableEnemy.levelRarities.ContainsKey(levelEnum))
-            {
-                // find rarity
-                int rarity = 0;
-
-                if (isVanilla && spawnableEnemy.levelRarities.ContainsKey(realLevelEnum))
-                    rarity = spawnableEnemy.levelRarities[realLevelEnum];
-
-                else if (isVanilla && spawnableEnemy.levelRarities.ContainsKey(Levels.LevelTypes.Vanilla))
-                    rarity = spawnableEnemy.levelRarities[Levels.LevelTypes.Vanilla];
-
-                else if (!isVanilla && spawnableEnemy.customLevelRarities != null && spawnableEnemy.customLevelRarities.ContainsKey(name))
-                    rarity = spawnableEnemy.customLevelRarities[name];
-
-                else if (!isVanilla && spawnableEnemy.levelRarities.ContainsKey(Levels.LevelTypes.Modded))
-                    rarity = spawnableEnemy.levelRarities[Levels.LevelTypes.Modded];
-                
-                else if (spawnableEnemy.levelRarities.ContainsKey(Levels.LevelTypes.All))
-                    rarity = spawnableEnemy.levelRarities[Levels.LevelTypes.All];
-                
-
-                var spawnableEnemyWithRarity = new SpawnableEnemyWithRarity()
+        switch (spawnableEnemy.spawnType)
+        {
+            case SpawnType.Default:
+                if (!level.Enemies.Any(x => x.enemyType == spawnableEnemy.enemy))
                 {
-                    enemyType = spawnableEnemy.enemy,
-                    rarity = rarity
-                };
-
-                // make sure spawnableScrap does not already contain item
-                //Plugin.logger.LogInfo($"Checking if {spawnableEnemy.enemy.name} is already in {name}");
-
-                /*
-                if (!level.spawnableEnemies.Any(x => x.spawnableEnemy == spawnableEnemy.enemy))
-                {
-                    level.spawnableEnemies.Add(spawnableEnemyWithRarity);
-                    Logger.LogInfo($"Added {spawnableEnemy.enemy.name} to {name}");
-                }*/
-
-                switch (spawnableEnemy.spawnType)
-                {
-                    case SpawnType.Default:
-                        if (!level.Enemies.Any(x => x.enemyType == spawnableEnemy.enemy))
-                        {
-                            level.Enemies.Add(spawnableEnemyWithRarity);
-                            if (Plugin.extendedLogging.Value)
-                                Plugin.logger.LogInfo($"To {name} added {spawnableEnemy.enemy.name} with weight {rarity} and SpawnType [Default]");
-                        }
-                        break;
-                    case SpawnType.Daytime:
-                        if (!level.DaytimeEnemies.Any(x => x.enemyType == spawnableEnemy.enemy))
-                        {
-                            level.DaytimeEnemies.Add(spawnableEnemyWithRarity);
-                            if (Plugin.extendedLogging.Value)
-                                Plugin.logger.LogInfo($"To {name} added {spawnableEnemy.enemy.name} with weight {rarity} andSpawnType [Daytime]");
-                        }
-                        break;
-                    case SpawnType.Outside:
-                        if (!level.OutsideEnemies.Any(x => x.enemyType == spawnableEnemy.enemy))
-                        {
-                            level.OutsideEnemies.Add(spawnableEnemyWithRarity);
-                            if (Plugin.extendedLogging.Value)
-                                Plugin.logger.LogInfo($"To {name} added {spawnableEnemy.enemy.name} with weight {rarity} and SpawnType [Outside]");
-                        }
-                        break;
-                    default:
-                        break;
+                    level.Enemies.Add(spawnableEnemyWithRarity);
+                    if (Plugin.extendedLogging.Value)
+                        Plugin.logger.LogInfo($"To {name} added {spawnableEnemy.enemy.name} with weight {rarity} and SpawnType [Default]");
                 }
-            }
+                break;
+            case SpawnType.Daytime:
+                if (!level.DaytimeEnemies.Any(x => x.enemyType == spawnableEnemy.enemy))
+                {
+                    level.DaytimeEnemies.Add(spawnableEnemyWithRarity);
+                    if (Plugin.extendedLogging.Value)
+                        Plugin.logger.LogInfo($"To {name} added {spawnableEnemy.enemy.name} with weight {rarity} andSpawnType [Daytime]");
+                }
+                break;
+            case SpawnType.Outside:
+                if (!level.OutsideEnemies.Any(x => x.enemyType == spawnableEnemy.enemy))
+                {
+                    level.OutsideEnemies.Add(spawnableEnemyWithRarity);
+                    if (Plugin.extendedLogging.Value)
+                        Plugin.logger.LogInfo($"To {name} added {spawnableEnemy.enemy.name} with weight {rarity} and SpawnType [Outside]");
+                }
+                break;
+            default:
+                break;
         }
     }
 
