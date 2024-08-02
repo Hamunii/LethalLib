@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 #endregion
 
@@ -53,32 +54,65 @@ public class Levels
         // From LLL, class: ConfigHelper
         private const string illegalCharacters = ".,?!@#$%^&*()_+-=';:'\"";
 
-        // From LLL, class: ExtendedLevel (modified to take a string as input)
-        private static string GetNumberlessPlanetName(string planetName)
+        // From LLL, class: SpanExtensions (modified: removed 'this' from ReadOnlySpan<char> span)
+        private static ReadOnlySpan<char> TrimStartToLetters(ReadOnlySpan<char> span)
         {
-            if (planetName != null)
-                return new string(planetName.SkipWhile(c => !char.IsLetter(c)).ToArray());
-            else
+            var startIndex = 0;
+            for (var i = 0; i < span.Length; i++)
+            {
+                if (char.IsLetter(span[i]))
+                {
+                    break;
+                }
+
+                startIndex++;
+            }
+
+            return span.Slice(startIndex);
+        }
+
+        // From LLL, class: ExtendedLevel (modified to take a string as input)
+        private static string SkipToLetters(string planetName)
+        {
+            if (planetName == null)
                 return string.Empty;
+            
+            var inputSpan = planetName.AsSpan();
+            var trimmedSpan = TrimStartToLetters(inputSpan);
+
+            if (inputSpan.Equals(trimmedSpan, StringComparison.Ordinal))
+            {
+                return planetName;
+            }
+
+            return trimmedSpan.ToString();
         }
 
         // From LLL, class: Extensions (modified: removed 'this' from string input)
         private static string StripSpecialCharacters(string input)
         {
-            string returnString = string.Empty;
+            var stringBuilder = new StringBuilder();
 
-            foreach (char charmander in input)
-                if ((!illegalCharacters.ToCharArray().Contains(charmander) && char.IsLetterOrDigit(charmander)) || charmander.ToString() == " ")
-                    returnString += charmander;
+            foreach (var chr in input)
+            {
+                if ((!illegalCharacters.Contains(chr) && char.IsLetterOrDigit(chr))
+                    || chr == ' ')
+                {
+                    stringBuilder.Append(chr);
+                }
+            }
 
-            return returnString;
+            if (input.Length == stringBuilder.Length)
+                return input;
+
+            return stringBuilder.ToString();
         }
 
         // Helper Method for LethalLib
         internal static string GetLLLNameOfLevel(string levelName)
         {
             // -> 10 Example
-            string newName = StripSpecialCharacters(GetNumberlessPlanetName(levelName));
+            var newName = StripSpecialCharacters(SkipToLetters(levelName));
             // -> Example
             if (!newName.EndsWith("Level"))
                 newName += "Level";
