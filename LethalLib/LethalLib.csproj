@@ -46,9 +46,7 @@
         <Reference Include="Unity.Netcode.Runtime" Publicize="true">
             <HintPath>$(LethalCompanyDir)Lethal Company_Data/Managed/Unity.Netcode.Runtime.dll</HintPath>
         </Reference>
-        <Reference Include="MMHOOK_Assembly-CSharp">
-            <HintPath>$(TestProfileDir)BepInEx/plugins/MMHOOK/MMHOOK_Assembly-CSharp.dll</HintPath>
-        </Reference>
+        <Reference Include="$(TestProfileDir)BepInEx/plugins/MMHOOK/**/MMHOOK_Assembly-CSharp.dll"/>
     </ItemGroup>
 
     <ItemGroup Condition="$(CI) == 'true'">
