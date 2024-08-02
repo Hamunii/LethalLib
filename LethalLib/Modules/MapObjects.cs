@@ -165,7 +165,7 @@ public class MapObjects
         public SpawnableMapObject mapObject;
         public SpawnableOutsideObjectWithRarity outsideObject;
         public Levels.LevelTypes levels;
-        public string[] spawnLevelOverrides;
+        public string[]? spawnLevelOverrides;
         // this way of handling things is very inconsistent with the enemies and items modules.
         public Func<SelectableLevel, AnimationCurve> spawnRateFunction;
     }
@@ -211,7 +211,7 @@ public class MapObjects
             mapObject = mapObject,
             levels = levels,
             spawnRateFunction = spawnRateFunction,
-            spawnLevelOverrides = levelOverrides
+            spawnLevelOverrides = Levels.Compatibility.LLLifyLevelArray(levelOverrides)
         });
     }
 
@@ -254,7 +254,7 @@ public class MapObjects
             outsideObject = mapObject,
             levels = levels,
             spawnRateFunction = spawnRateFunction,
-            spawnLevelOverrides = levelOverrides
+            spawnLevelOverrides = Levels.Compatibility.LLLifyLevelArray(levelOverrides)
         });
     }
 

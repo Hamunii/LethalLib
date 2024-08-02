@@ -100,6 +100,19 @@ public class Levels
             }
             return LLLifiedCustomLevelRarities;
         }
+
+        internal static string[]? LLLifyLevelArray(string[]? levels)
+        {
+            if (levels is null)
+                return null;
+
+            string[] newLevelsArray = new string[levels.Length];
+
+            for (int i = 0; i < levels.Length; i++)
+                newLevelsArray[i] = GetLLLNameOfLevel(levels[i]);
+
+            return newLevelsArray;
+        }
     }
 
     internal static bool TryGetRarityForLevel(string levelName, Dictionary<LevelTypes, int> vanillaDict, Dictionary<string, int>? moddedDict, out int rarity)
