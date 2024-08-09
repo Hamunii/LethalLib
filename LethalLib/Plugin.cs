@@ -51,7 +51,10 @@ public class Plugin : BaseUnityPlugin
         Items.Init();
         Unlockables.Init();
         MapObjects.Init();
+#pragma warning disable CS0618 // Type or member is obsolete
+        // Idk if this some functionality still works, I didn't remove this yet.
         Dungeon.Init();
+#pragma warning restore CS0618 // Type or member is obsolete
         Weathers.Init();
         Player.Init();
         Utilities.Init();

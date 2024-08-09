@@ -13,8 +13,11 @@ using UnityEngine;
 
 namespace LethalLib.Modules;
 
+[Obsolete(dungeonObsoleteMessage)]
 public class Dungeon
 {
+    private const string dungeonObsoleteMessage = "Custom Dungeon functionality has been removed from LethalLib. Please use LethalLevelLoader instead.";
+
     public static void Init()
     {
         On.RoundManager.GenerateNewFloor += RoundManager_GenerateNewFloor;
@@ -91,6 +94,7 @@ public class Dungeon
         orig(self);
     }
 
+    [Obsolete(dungeonObsoleteMessage)]
     public class CustomDungeonArchetype
     {
         public DungeonArchetype archeType;
@@ -98,12 +102,14 @@ public class Dungeon
         public int lineIndex = -1;
     }
 
+    [Obsolete(dungeonObsoleteMessage)]
     public class CustomGraphLine
     {
         public GraphLine graphLine;
         public Levels.LevelTypes LevelTypes;
     }
 
+    [Obsolete(dungeonObsoleteMessage)]
     public class CustomDungeon
     {
         public int rarity;
@@ -122,6 +128,10 @@ public class Dungeon
 
     private static void RoundManager_GenerateNewFloor(On.RoundManager.orig_GenerateNewFloor orig, RoundManager self)
     {
+        if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("imabatby.lethallevelloader") || // currently has typo
+            BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("iambatby.lethallevelloader")) // might be changed to this
+            orig(self);
+
         var name = self.currentLevel.name;
         if (Enum.IsDefined(typeof(Levels.LevelTypes), name))
         {
@@ -267,6 +277,7 @@ public class Dungeon
     /// <summary>
     /// Registers a custom archetype to a level.
     /// </summary>
+    [Obsolete(dungeonObsoleteMessage)]
     public static void AddArchetype(DungeonArchetype archetype, Levels.LevelTypes levelFlags, int lineIndex = -1)
     {
         var customArchetype = new CustomDungeonArchetype();
@@ -279,6 +290,7 @@ public class Dungeon
     /// <summary>
     /// Registers a dungeon graphline to a level.
     /// </summary>
+    [Obsolete(dungeonObsoleteMessage)]
     public static void AddLine(GraphLine line, Levels.LevelTypes levelFlags)
     {
         var customLine = new CustomGraphLine();
@@ -290,6 +302,7 @@ public class Dungeon
     /// <summary>
     /// Registers a dungeon graphline to a level.
     /// </summary>
+    [Obsolete(dungeonObsoleteMessage)]
     public static void AddLine(DungeonGraphLineDef line, Levels.LevelTypes levelFlags)
     {
         AddLine(line.graphLine, levelFlags);
@@ -298,6 +311,7 @@ public class Dungeon
     /// <summary>
     /// Adds a tileset to a dungeon archetype
     /// </summary>
+    [Obsolete(dungeonObsoleteMessage)]
     public static void AddTileSet(TileSet set, string archetypeName)
     {
         extraTileSets.Add(archetypeName, set);
@@ -306,6 +320,7 @@ public class Dungeon
     /// <summary>
     /// Adds a room to a tileset with the given name.
     /// </summary>
+    [Obsolete(dungeonObsoleteMessage)]
     public static void AddRoom(GameObjectChance room, string tileSetName)
     {
         extraRooms.Add(tileSetName, room);
@@ -314,6 +329,7 @@ public class Dungeon
     /// <summary>
     /// Adds a room to a tileset with the given name.
     /// </summary>
+    [Obsolete(dungeonObsoleteMessage)]
     public static void AddRoom(GameObjectChanceDef room, string tileSetName)
     {
         AddRoom(room.gameObjectChance, tileSetName);
@@ -322,6 +338,7 @@ public class Dungeon
     /// <summary>
     /// Adds a dungeon to the given levels.
     /// </summary>
+    [Obsolete(dungeonObsoleteMessage)]
     public static void AddDungeon(DungeonDef dungeon, Levels.LevelTypes levelFlags)
     {
         AddDungeon(dungeon.dungeonFlow, dungeon.rarity, levelFlags, dungeon.firstTimeDungeonAudio); 
@@ -330,6 +347,7 @@ public class Dungeon
     /// <summary>
     /// Adds a dungeon to the given levels.
     /// </summary>
+    [Obsolete(dungeonObsoleteMessage)]
     public static void AddDungeon(DungeonDef dungeon, Levels.LevelTypes levelFlags, string[] levelOverrides)
     {
         AddDungeon(dungeon.dungeonFlow, dungeon.rarity, levelFlags, levelOverrides, dungeon.firstTimeDungeonAudio);
@@ -338,6 +356,7 @@ public class Dungeon
     /// <summary>
     /// Adds a dungeon to the given levels.
     /// </summary>
+    [Obsolete(dungeonObsoleteMessage)]
     public static void AddDungeon(DungeonFlow dungeon, int rarity, Levels.LevelTypes levelFlags, AudioClip firstTimeDungeonAudio = null)
     {
         customDungeons.Add(new CustomDungeon
@@ -352,6 +371,7 @@ public class Dungeon
     /// <summary>
     /// Adds a dungeon to the given levels.
     /// </summary>
+    [Obsolete(dungeonObsoleteMessage)]
     public static void AddDungeon(DungeonFlow dungeon, int rarity, Levels.LevelTypes levelFlags, string[] levelOverrides = null, AudioClip firstTimeDungeonAudio = null)
     {
         customDungeons.Add(new CustomDungeon

@@ -14,7 +14,7 @@ Currently includes:
 - Custom Shop Item API
 - Unlockables API
 - Map Objects API
-- Dungeon API
+- ~~Dungeon API~~ (deprecated, please use LethalLevelLoader instead)
 - Custom Enemy API
 - Network Prefab API
 - Prefab Utils  
