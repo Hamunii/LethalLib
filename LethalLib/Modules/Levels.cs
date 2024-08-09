@@ -151,31 +151,26 @@ public class Levels
 
     internal static bool TryGetRarityForLevel(string levelName, Dictionary<LevelTypes, int> vanillaDict, Dictionary<string, int>? moddedDict, out int rarity)
     {
-        rarity = 0;
-        bool isVanilla = false;
-        if (Enum.TryParse<LevelTypes>(levelName, out var levelEnum))
-            isVanilla = true;
-        else
+        bool isVanilla = Enum.TryParse<LevelTypes>(levelName, out var levelEnum);
+
+        if (!isVanilla)
             levelName = Compatibility.GetLLLNameOfLevel(levelName);
 
-        if (isVanilla && vanillaDict.ContainsKey(levelEnum))
-            rarity = vanillaDict[levelEnum];
+        if (isVanilla && vanillaDict.TryGetValue(levelEnum, out rarity))
+            return true;
 
-        else if (isVanilla && vanillaDict.ContainsKey(LevelTypes.Vanilla))
-            rarity = vanillaDict[LevelTypes.Vanilla];
+        else if (isVanilla && vanillaDict.TryGetValue(LevelTypes.Vanilla, out rarity))
+            return true;
 
-        else if (!isVanilla && moddedDict != null && moddedDict.ContainsKey(levelName))
-            rarity = moddedDict[levelName];
+        else if (!isVanilla && moddedDict != null && moddedDict.TryGetValue(levelName, out rarity))
+            return true;
 
-        else if (!isVanilla && vanillaDict.ContainsKey(LevelTypes.Modded))
-            rarity = vanillaDict[LevelTypes.Modded];
+        else if (!isVanilla && vanillaDict.TryGetValue(LevelTypes.Modded, out rarity))
+            return true;
 
-        else if (vanillaDict.ContainsKey(LevelTypes.All))
-            rarity = vanillaDict[LevelTypes.All];
+        else if (vanillaDict.TryGetValue(LevelTypes.All, out rarity))
+            return true;
 
-        else
-            return false;
-
-        return true;
+        return false;
     }
 }
